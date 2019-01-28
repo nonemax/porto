@@ -1,0 +1,40 @@
+version: '3'
+services:
+  domainservice:
+    build: ./domainservice
+    depends_on:
+      - psql
+    image: dmservice
+    container_name: dmservice
+    ports: 
+     - 8080:8080
+    entrypoint: 
+     - domainservice
+     - -psql_cfg=postgres://porto:porto@psql:5432/porto?sslmode=disable
+     - -lst_addr=:8080
+     - -wait=15
+  clientapi:
+    build: ./clientapi
+    depends_on:
+      - psql
+      - domainservice
+    image: clientapi
+    container_name: clientapi
+    volumes:
+     - ./integtests/ports.json:/go/src/github.com/nonemax/porto/clientapi/ports.json
+    ports: 
+     - 8081:8081
+    entrypoint: 
+     - clientapi
+     - -lst_addr=:8081
+     - -addr=domainservice:8080
+     - -file_name=ports.json
+     - -wait=20
+  psql:
+    build: ./db
+    image: porto_psql
+    container_name: porto_psql
+    environment:
+     - POSTGRES_PASSWORD=porto
+     - POSTGRES_DB=porto
+     - POSTGRES_USER=porto

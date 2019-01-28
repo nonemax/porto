@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "nonemax.porto.transport";
+option java_outer_classname = "PortoTransport";
+
+package transport;
+
+// The transport service definition.
+service Transport {
+  // Sends port data
+  rpc SendPort (SendPortRequest) returns (SendPortReply) {}
+  // Gets port data
+  rpc GetPort (GetPortRequest) returns (GetPortReply) {}
+}
+
+// The request message containing port json data.
+message SendPortRequest {
+  bytes portjson = 1;
+}
+
+// The response message containing result string message
+message SendPortReply {
+  string message = 1;
+}
+
+// The request message containing port name.
+message GetPortRequest {
+  string name = 1;
+}
+
+// The response message containing the port json data
+message GetPortReply {
+  bytes portjson = 1;
+}
