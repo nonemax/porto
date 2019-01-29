@@ -11,7 +11,7 @@ import (
 	t "github.com/nonemax/porto-transport"
 )
 
-type messgae struct {
+type message struct {
 	PortData []byte
 }
 
@@ -21,7 +21,7 @@ type Config struct {
 	buffer   int
 	c        t.TransportClient
 	Sender   Sender
-	waitLine chan messgae
+	waitLine chan message
 }
 
 // New creates new parser
@@ -42,7 +42,7 @@ func (c *Config) Start() error {
 		return err
 	}
 	defer file.Close()
-	c.waitLine = make(chan messgae, 50)
+	c.waitLine = make(chan message, 50)
 	go c.WaitLineHandler()
 	lines := []byte{}
 	scanner := bufio.NewScanner(file)
@@ -55,7 +55,7 @@ func (c *Config) Start() error {
 		if strings.Contains(scanner.Text(), "},") {
 			lines = append(lines, []byte("  }")...)
 			lines = []byte("{" + string(lines) + "}")
-			m := messgae{
+			m := message{
 				PortData: lines,
 			}
 			go func() { c.waitLine <- m }()
