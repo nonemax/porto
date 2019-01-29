@@ -130,14 +130,20 @@ func (d *DB) GetPort(unlock string) (entity.Port, error) {
 	)
 	unlocks := []string{unlock}
 	port := entity.Port{Unlocks: unlocks}
+	port.Alias = []string{}
+	port.Regions = []string{}
 	err := d.stmts[stmtGetPort].QueryRow(unlock).Scan(&port.Name, &port.City, &port.Country, &alias, &regions, &lat, &long, &port.Province, &port.TimeZone, &port.Code)
 	if err == sql.ErrNoRows {
 		return port, err
 	} else if err != nil {
 		return port, err
 	}
-	port.Alias = []string{alias}
-	port.Regions = []string{regions}
+	if len(alias) > 0 {
+		port.Alias = []string{alias}
+	}
+	if len(regions) > 0 {
+		port.Regions = []string{regions}
+	}
 	port.Coordinates = []float32{lat, long}
 	return port, nil
 }
