@@ -13,6 +13,8 @@ services:
      - -psql_cfg=postgres://porto:porto@psql:5432/porto?sslmode=disable
      - -lst_addr=:8080
      - -wait=15
+    networks:
+      - porto
   clientapi:
     build: ./clientapi
     depends_on:
@@ -30,6 +32,8 @@ services:
      - -addr=domainservice:8080
      - -file_name=ports.json
      - -wait=20
+    networks:
+      - porto
   psql:
     build: ./db
     image: porto_psql
@@ -38,3 +42,8 @@ services:
      - POSTGRES_PASSWORD=porto
      - POSTGRES_DB=porto
      - POSTGRES_USER=porto
+    networks:
+      - porto
+networks:
+  porto:
+    driver: bridge

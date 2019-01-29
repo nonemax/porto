@@ -1,0 +1,15 @@
+version: '3'
+services:
+  integtests:
+    build: ./
+    image: integtests
+    container_name: integtests
+    entrypoint: 
+     - integtests
+     - -addr=http://clientapi:8081
+     - -wait=50
+    networks:
+     - porto_porto
+networks:
+  porto_porto:
+     external: true

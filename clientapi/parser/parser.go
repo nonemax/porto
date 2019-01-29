@@ -11,12 +11,17 @@ import (
 	t "github.com/nonemax/porto-transport"
 )
 
+type messgae struct {
+	PortData []byte
+}
+
 // Config is for parser configuration
 type Config struct {
 	filename string
 	buffer   int
 	c        t.TransportClient
 	Sender   Sender
+	waitLine chan messgae
 }
 
 // New creates new parser
@@ -37,6 +42,8 @@ func (c *Config) Start() error {
 		return err
 	}
 	defer file.Close()
+	c.waitLine = make(chan messgae, 50)
+	go c.WaitLineHandler()
 	lines := []byte{}
 	scanner := bufio.NewScanner(file)
 	buf := make([]byte, 0, 1024*1024)
@@ -48,16 +55,27 @@ func (c *Config) Start() error {
 		if strings.Contains(scanner.Text(), "},") {
 			lines = append(lines, []byte("  }")...)
 			lines = []byte("{" + string(lines) + "}")
-			err = c.ScanPort(lines)
-			if err != nil {
-				return err
+			m := messgae{
+				PortData: lines,
 			}
+			go func() { c.waitLine <- m }()
 			lines = []byte{}
 			continue
 		}
 		lines = append(lines, scanner.Bytes()...)
 	}
 	return nil
+}
+
+// WaitLineHandler is for handle doata from parser wait line
+func (c *Config) WaitLineHandler() {
+	for {
+		m := <-c.waitLine
+		err := c.ScanPort(m.PortData)
+		if err != nil {
+			log.Println("Error while send port data", err)
+		}
+	}
 }
 
 // ScanPort marshal and send port to the server
