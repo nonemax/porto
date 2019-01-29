@@ -10,7 +10,7 @@ go build
 popd
 
 echo "Running integtests"
-integtests/integtests -addr=http://127.0.0.1:8081 -wait=40
+integtests/integtests -addr=http://127.0.0.1:8081 -wait=50
 result=$?
 
 docker-compose down
