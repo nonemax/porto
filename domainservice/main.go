@@ -28,6 +28,7 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
+
 	if wait > 0 {
 		time.Sleep(time.Duration(wait) * time.Second)
 	}
